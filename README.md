@@ -26,6 +26,23 @@ The installer is idempotent and can be run again safely.
 - global Pi AGENTS.md
 - verification script
 
+## Language Playbooks
+
+The global rules stay intentionally small. Language-specific guidance lives under `languages/`:
+
+- `typescript` — TypeScript/Node.js
+- `python` — Python
+- `rust` — Rust
+- `go` — Go
+- `java` — Java
+- `csharp` — C#
+- `cpp` — C++
+- `php` — PHP
+- `kotlin` — Kotlin
+- `bash` — Bash/shell automation
+
+These guides focus on maintainable design, consistent naming, testability, error handling, and performance choices by workload. Project-local conventions always take precedence.
+
 After installation:
 
     pi
