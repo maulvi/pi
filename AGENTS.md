@@ -1,32 +1,37 @@
-# Global Coding Instructions
+# Global Agent Rules
 
-## General
-- Inspect the existing project before making changes.
-- Prefer minimal, targeted changes.
-- Preserve existing architecture unless there is a clear reason to change it.
-- Never delete user data or configuration without explicit confirmation.
+These rules apply to every coding task. Higher-priority instructions override them.
 
-## Git
-- Inspect git status before modifying a repository.
+## 1. Understand First
+- Inspect the relevant code, config, docs, and package files before changing anything.
+- Treat existing code and project conventions as the default source of truth.
+- When unsure, inspect or verify instead of guessing.
+
+## 2. Keep It Simple
+- Make the smallest change that fully solves the task.
+- Prefer clear, standard solutions over clever ones.
+- Do not refactor unrelated code.
+- Reuse existing dependencies and tools; add new ones only when justified.
+- Follow the project's existing package manager and conventions.
+
+## 3. Protect Existing Work
+- Check `git status` and relevant diffs before editing.
+- Never overwrite, reset, or discard user changes.
 - Never force-push.
-- Never reset or discard user changes without confirmation.
-- Prefer small, reviewable commits.
+- Preserve compatibility unless the task explicitly requires a breaking change.
 
-## Dependencies
-- Reuse existing dependencies when possible.
-- Do not add dependencies without a reason.
-- Respect the project's existing package manager.
+## 4. Verify
+- After meaningful changes, run the most relevant tests, type checks, linters, or build commands.
+- Prefer focused checks first, then broader checks when practical.
+- Verify behavior, not just syntax.
+- If something cannot be verified, state exactly what was not checked and why.
 
-## Testing
-- Run existing tests after meaningful changes.
-- Run formatting/linting when the project provides it.
-- If tests cannot run, explain why.
+## 5. Safety
+- Never expose, commit, or log secrets, tokens, keys, or credentials.
+- Treat production changes, migrations, deletions, permission changes, and data operations as destructive.
+- Do not perform destructive actions unless explicitly requested or clearly required by the task.
 
-## Production safety
-- Treat migrations, deployments, database operations, and infrastructure commands as potentially destructive.
-- Never perform destructive production operations without confirmation.
-
-## Communication
-- Explain what changed.
-- Mention checks/tests that were run.
-- Keep responses concise.
+## 6. Finish Cleanly
+- Keep the final change set small and reviewable.
+- Report: what changed, what was verified, and any remaining issue or risk.
+- Do not claim a test or command was run when it was not.
