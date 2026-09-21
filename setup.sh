@@ -40,8 +40,11 @@ fi
 
 export PATH="$HOME/.local/share/fnm:$HOME/.fnm:$PATH"
 if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --shell bash)"
   fnm install --lts
   fnm default "$(fnm current)"
+else
+  warn "fnm is not available in this shell."
 fi
 
 log "Installing Bun"
