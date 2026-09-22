@@ -23,7 +23,7 @@ sudo apt-get install -y \
   gnupg jq ripgrep fd-find fzf tree tmux htop btop rsync \
   openssh-client procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv zsh neovim \
-  github-cli docker.io docker-compose-plugin
+  github-cli
 
 log "Configuring local bin"
 mkdir -p "$HOME/.local/bin"
@@ -81,6 +81,9 @@ install -m 0644 AGENTS.md "$HOME/.omp/agent/AGENTS.md"
 log "Installing tmux configuration"
 mkdir -p "$HOME/.config/tmux"
 install -m 0644 config/tmux.conf "$HOME/.config/tmux/tmux.conf"
+
+log "Installing latest Docker"
+curl -fsSL https://get.docker.com | sudo sh
 
 log "Enabling Docker"
 sudo systemctl enable --now docker
