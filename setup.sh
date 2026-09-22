@@ -73,9 +73,10 @@ else
   warn "Bun is not available in this shell. Open a new shell and run: bun install -g @oh-my-pi/pi-coding-agent"
 fi
 
-log "Installing Pi global instructions"
-mkdir -p "$HOME/.pi/agent"
+log "Installing global agent instructions"
+mkdir -p "$HOME/.pi/agent" "$HOME/.omp/agent"
 install -m 0644 AGENTS.md "$HOME/.pi/agent/AGENTS.md"
+install -m 0644 AGENTS.md "$HOME/.omp/agent/AGENTS.md"
 
 log "Installing tmux configuration"
 mkdir -p "$HOME/.config/tmux"
