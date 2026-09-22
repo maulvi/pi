@@ -23,7 +23,7 @@ sudo apt-get install -y \
   gnupg jq ripgrep fd-find fzf tree tmux htop btop rsync \
   openssh-client procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv zsh neovim \
-  github-cli
+  gh
 
 log "Configuring local bin"
 mkdir -p "$HOME/.local/bin"
