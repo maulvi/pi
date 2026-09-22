@@ -66,6 +66,13 @@ else
   warn "npm is not available in this shell. Open a new shell and run: npm install -g @mariozechner/pi-coding-agent"
 fi
 
+log "Installing Oh My Pi (OMP)"
+if command -v bun >/dev/null 2>&1; then
+  bun install -g @oh-my-pi/pi-coding-agent
+else
+  warn "Bun is not available in this shell. Open a new shell and run: bun install -g @oh-my-pi/pi-coding-agent"
+fi
+
 log "Installing Pi global instructions"
 mkdir -p "$HOME/.pi/agent"
 install -m 0644 AGENTS.md "$HOME/.pi/agent/AGENTS.md"
@@ -87,3 +94,4 @@ log "Done"
 printf '\nOpen a new shell, then run:\n'
 printf '  ./scripts/verify.sh\n'
 printf '  pi\n'
+printf '  omp\n'
