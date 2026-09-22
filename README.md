@@ -17,6 +17,7 @@ The installer is idempotent and can be run again safely.
 - Node.js LTS via fnm
 - npm + Pi Coding Agent
 - Bun
+- Oh My Pi (OMP)
 - GitHub CLI
 - Docker + Compose
 - Python + venv
@@ -25,6 +26,11 @@ The installer is idempotent and can be run again safely.
 - ripgrep, fd, fzf, jq, shellcheck
 - global Pi AGENTS.md
 - verification script
+
+Pi and OMP are installed as separate CLIs:
+
+    pi
+    omp
 
 ## Language Playbooks
 
@@ -47,8 +53,11 @@ After installation:
 
     pi
 
-Inside Pi, authenticate with:
+or:
 
-    /login
+    omp
 
-Pi is intentionally kept minimal. Community extensions/packages should be installed separately after reviewing their source.
+Inside the agent, authenticate/configure the provider according to the agent's setup flow.
+
+Pi and OMP are intentionally kept separate so either CLI can be used for different workflows.
+Community extensions/packages should be installed separately after reviewing their source.
