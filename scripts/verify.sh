@@ -9,6 +9,6 @@ check() {
   fi
 }
 
-for cmd in git curl node npm bun python3 cargo docker gh rg fd fzf jq tmux pi; do
+for cmd in git curl node npm bun python3 cargo docker gh rg fd fzf jq tmux pi omp; do
   check "$cmd"
 done
