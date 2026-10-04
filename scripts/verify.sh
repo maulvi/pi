@@ -45,4 +45,20 @@ done
 check_compose
 check "$AGENT"
 
+if [[ -x /usr/sbin/sshd ]]; then
+  printf 'OK   %-12s %s\n' "sshd" "$(/usr/sbin/sshd -V 2>&1 | head -n1)"
+else
+  printf 'MISS %-12s\n' "sshd"
+  missing=1
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+  if systemctl is-active --quiet ssh; then
+    printf 'OK   %-12s active\n' "ssh-service"
+  else
+    printf 'MISS %-12s inactive\n' "ssh-service"
+    missing=1
+  fi
+fi
+
 exit "$missing"
