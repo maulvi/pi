@@ -26,7 +26,7 @@ if [[ -z "$TARGET_HOME" || "$TARGET_HOME" != "$HOME" ]]; then
 fi
 
 # Detect tools installed in the user's home directory before installing anything.
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:$HOME/.local/share/herdr/bin:$HOME/.local/share/rtk/bin:$HOME/.config/composer/vendor/bin:$HOME/.npm-global/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.local/share/fnm:$HOME/.fnm:$HOME/.local/share/herdr/bin:$HOME/.local/share/rtk/bin:$HOME/.config/composer/vendor/bin:$HOME/.npm-global/bin:$PATH"
 if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --shell bash 2>/dev/null)" || true
 fi
@@ -129,7 +129,7 @@ sudo apt-get install -y \
   python3 python3-pip python3-venv pipx zsh neovim bash-completion \
   dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
   php8.5-cli php8.5-fpm php8.5-mbstring \
-  libicu76 clangd openjdk-25-jdk-headless \
+  clangd \
   gh kitty-terminfo
 
 log "Configuring local bin"
@@ -207,73 +207,6 @@ chmod +x "$HOME/.local/bin/phpactor"
 log "Enabling PHP-FPM"
 sudo systemctl enable --now php8.5-fpm
 
-log "Installing Java LSP"
-JDTLS_DIR="$HOME/.local/share/jdtls"
-if [[ ! -x "$JDTLS_DIR/bin/jdtls" ]]; then
-  rm -rf "$JDTLS_DIR.tmp"
-  mkdir -p "$JDTLS_DIR.tmp"
-  curl -fsSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz | tar -xz -C "$JDTLS_DIR.tmp"
-  rm -rf "$JDTLS_DIR"
-  mv "$JDTLS_DIR.tmp" "$JDTLS_DIR"
-fi
-ln -sf "$JDTLS_DIR/bin/jdtls" "$HOME/.local/bin/jdtls"
-
-log "Installing Kotlin LSP"
-KOTLIN_LSP_VERSION="$(curl -fsSL https://api.github.com/repos/Kotlin/kotlin-lsp/releases/latest | jq -r '.tag_name' | sed 's#^kotlin-lsp/v##')"
-if [[ -z "$KOTLIN_LSP_VERSION" || "$KOTLIN_LSP_VERSION" == "null" ]]; then
-  warn "Could not determine the latest Kotlin LSP version."
-  exit 1
-fi
-
-case "$(dpkg --print-architecture)" in
-  amd64) KOTLIN_LSP_ARCH="";;
-  arm64) KOTLIN_LSP_ARCH="-aarch64";;
-  *)
-    warn "Unsupported architecture for Kotlin LSP: $(dpkg --print-architecture)"
-    exit 1
-    ;;
-esac
-
-KOTLIN_LSP_DIR="$HOME/.local/share/kotlin-lsp/$KOTLIN_LSP_VERSION"
-KOTLIN_LSP_ARCHIVE="kotlin-server-$KOTLIN_LSP_VERSION${KOTLIN_LSP_ARCH}.tar.gz"
-if [[ ! -x "$KOTLIN_LSP_DIR/bin/intellij-server" && ! -x "$KOTLIN_LSP_DIR/kotlin-lsp.sh" ]]; then
-  rm -rf "$KOTLIN_LSP_DIR.tmp"
-  mkdir -p "$KOTLIN_LSP_DIR.tmp"
-  curl -fsSL "https://download.jetbrains.com/language-server/kotlin-server/$KOTLIN_LSP_VERSION/$KOTLIN_LSP_ARCHIVE" | tar -xz -C "$KOTLIN_LSP_DIR.tmp"
-  rm -rf "$KOTLIN_LSP_DIR"
-  mv "$KOTLIN_LSP_DIR.tmp" "$KOTLIN_LSP_DIR"
-fi
-
-if [[ -x "$KOTLIN_LSP_DIR/bin/intellij-server" ]]; then
-  KOTLIN_LSP_BIN="$KOTLIN_LSP_DIR/bin/intellij-server"
-elif [[ -x "$KOTLIN_LSP_DIR/kotlin-lsp.sh" ]]; then
-  KOTLIN_LSP_BIN="$KOTLIN_LSP_DIR/kotlin-lsp.sh"
-else
-  warn "Kotlin LSP launcher was not found after installation."
-  exit 1
-fi
-
-ln -sfn "$KOTLIN_LSP_DIR" "$HOME/.local/share/kotlin-lsp/current"
-ln -sfn "$KOTLIN_LSP_BIN" "$HOME/.local/bin/kotlin-lsp"
-chmod +x "$KOTLIN_LSP_BIN"
-
-log "Installing .NET SDK 10"
-if ! command -v dotnet >/dev/null 2>&1; then
-  curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
-  bash /tmp/dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet" --no-path
-  rm -f /tmp/dotnet-install.sh
-fi
-export DOTNET_ROOT="$HOME/.dotnet"
-export PATH="$DOTNET_ROOT:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"
-grep -qxF 'export DOTNET_ROOT="$HOME/.dotnet"' "$HOME/.bashrc" 2>/dev/null ||   printf '\nexport DOTNET_ROOT="$HOME/.dotnet"\n' >> "$HOME/.bashrc"
-grep -qxF 'export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null ||   printf 'export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
-
-log "Installing C# LSP"
-if command -v csharp-ls >/dev/null 2>&1; then
-  dotnet tool update --global csharp-ls || true
-else
-  dotnet tool install --global csharp-ls
-fi
 
 log "Installing JavaScript/TypeScript, Python, and Bash LSPs"
 npm install -g typescript-language-server typescript@6 pyright bash-language-server
