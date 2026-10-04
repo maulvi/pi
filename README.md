@@ -22,6 +22,8 @@ For non-interactive installation:
 - Node.js LTS via fnm
 - Bun
 - Rust
+- Go
+- PHP 8.5 CLI + FPM
 - Python + venv + pipx
 - GitHub CLI + Git LFS
 - OpenSSH client + server
