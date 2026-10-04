@@ -36,13 +36,10 @@ Use the available language server for semantic code understanding when the agent
 | PHP | phpactor |
 | Bash | bash-language-server |
 | C / C++ | clangd |
-| C# | csharp-ls |
-| Java | jdtls |
-| Kotlin | JetBrains Kotlin LSP |
 
 - Prefer LSP for definitions, references, symbols, types, diagnostics, rename, and code actions.
 - Do not replace available semantic LSP operations with grep/find-only inspection.
-- Respect project metadata such as tsconfig.json, pyproject.toml, Cargo.toml, go.mod, composer.json, pom.xml, and Gradle files.
+- Respect project metadata such as tsconfig.json, pyproject.toml, Cargo.toml, go.mod, and composer.json.
 - Do not add another LSP unless the project requires it.
 - If LSP cannot index the project, fall back to compiler, type checker, linter, tests, or direct source inspection.
 - Treat LSP output as evidence, not absolute truth.
