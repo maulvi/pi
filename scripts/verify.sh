@@ -52,7 +52,7 @@ check_compose() {
   fi
 }
 
-for cmd in git curl node npm bun python3 php go rust-analyzer gopls phpactor bash-language-server clangd csharp-ls jdtls kotlin-lsp composer dotnet cargo docker gh rg fd fzf jq tmux herdr rtk; do
+for cmd in git curl node npm bun python3 php go rust-analyzer gopls phpactor bash-language-server clangd csharp-ls jdtls kotlin-lsp composer dotnet cargo docker gh rg fd fzf jq herdr rtk; do
   check "$cmd"
 done
 
