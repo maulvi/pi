@@ -30,6 +30,12 @@ if [[ ! -r /etc/os-release ]] || ! . /etc/os-release || [[ "${ID:-}" != "debian"
   exit 1
 fi
 
+DEBIAN_MAJOR="${VERSION_ID%%.*}"
+if [[ ! "$DEBIAN_MAJOR" =~ ^[0-9]+$ ]] || (( DEBIAN_MAJOR < 13 )); then
+  warn "Debian 13 or newer is required for the current language-server toolchain."
+  exit 1
+fi
+
 if ! command -v sudo >/dev/null 2>&1; then
   echo "sudo is required."
   exit 1
@@ -116,7 +122,8 @@ sudo apt-get install -y \
   openssh-client openssh-server procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv pipx zsh neovim bash-completion \
   dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
-  php8.5-cli php8.5-fpm \
+  php8.5-cli php8.5-fpm php8.5-mbstring \
+  clangd openjdk-25-jdk-headless \
   gh kitty-terminfo
 
 log "Configuring local bin"
