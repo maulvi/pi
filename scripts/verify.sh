@@ -38,12 +38,28 @@ check_compose() {
   fi
 }
 
-for cmd in git curl node npm bun python3 cargo docker gh rg fd fzf jq tmux herdr rtk; do
+for cmd in git curl node npm bun python3 php go cargo docker gh rg fd fzf jq tmux herdr rtk; do
   check "$cmd"
 done
 
 check_compose
 check "$AGENT"
+
+if [[ -x /usr/sbin/php-fpm8.5 ]]; then
+  printf 'OK   %-12s %s\n' "php-fpm8.5" "$(/usr/sbin/php-fpm8.5 -v 2>/dev/null | head -n1)"
+else
+  printf 'MISS %-12s\n' "php-fpm8.5"
+  missing=1
+fi
+
+if command -v systemctl >/dev/null 2>&1; then
+  if systemctl is-active --quiet php8.5-fpm; then
+    printf 'OK   %-12s active\n' "php8.5-fpm"
+  else
+    printf 'MISS %-12s inactive\n' "php8.5-fpm"
+    missing=1
+  fi
+fi
 
 if [[ -x /usr/sbin/sshd ]]; then
   printf 'OK   %-12s %s\n' "sshd" "$(/usr/sbin/sshd -V 2>&1 | head -n1)"
