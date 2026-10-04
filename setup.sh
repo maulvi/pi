@@ -61,7 +61,7 @@ sudo apt-get install -y \
   gnupg jq ripgrep fd-find fzf tree tmux htop btop rsync \
   openssh-client procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv zsh neovim \
-  gh
+  gh kitty-terminfo
 
 log "Configuring local bin"
 mkdir -p "$HOME/.local/bin"
@@ -96,6 +96,9 @@ if ! command -v cargo >/dev/null 2>&1; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 fi
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+log "Installing Herdr"
+curl -fsSL https://herdr.dev/install.sh | sh
 
 case "$AGENT" in
   pi)
