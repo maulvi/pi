@@ -20,7 +20,7 @@ esac
 
 # Include common user-local install locations. Not every tool is installed
 # through APT or placed in a system PATH.
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # fnm-managed Node/npm may need its shell environment initialized.
 if command -v fnm >/dev/null 2>&1; then
@@ -58,8 +58,22 @@ done
 
 check_compose
 check "$AGENT"
-check php-fpm8.5
-check sshd
+check_path() {
+  local name="$1"
+  shift
+  local candidate
+  for candidate in "$@"; do
+    if [[ -x "$candidate" ]]; then
+      printf 'OK   %-22s %s\n' "$name" "$candidate"
+      return
+    fi
+  done
+  printf 'MISS %-22s\n' "$name"
+  missing=1
+}
+
+check_path php-fpm8.5 /usr/sbin/php-fpm8.5
+check_path sshd /usr/sbin/sshd
 
 if command -v systemctl >/dev/null 2>&1; then
   if systemctl is-active --quiet php8.5-fpm; then
