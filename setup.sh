@@ -129,7 +129,7 @@ sudo apt-get install -y \
   python3 python3-pip python3-venv pipx zsh neovim bash-completion \
   dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
   php8.5-cli php8.5-fpm php8.5-mbstring \
-  clangd openjdk-25-jdk-headless \
+  libicu76 clangd openjdk-25-jdk-headless \
   gh kitty-terminfo
 
 log "Configuring local bin"
