@@ -20,7 +20,14 @@ esac
 
 # Include common user-local install locations. Not every tool is installed
 # through APT or placed in a system PATH.
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.local/share/fnm:$HOME/.fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+export PATH="$HOME/.local/bin:$BUN_INSTALL/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.local/share/fnm:$HOME/.fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
+# Resolve Bun's configured global binary directory when available.
+if command -v bun >/dev/null 2>&1; then
+  BUN_BIN_DIR="$(bun pm bin -g 2>/dev/null || true)"
+  [[ -n "$BUN_BIN_DIR" ]] && export PATH="$BUN_BIN_DIR:$PATH"
+fi
 
 # fnm-managed Node/npm may need its shell environment initialized.
 if command -v fnm >/dev/null 2>&1; then
