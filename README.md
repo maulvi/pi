@@ -24,6 +24,7 @@ For non-interactive installation:
 - Rust
 - Python + venv + pipx
 - GitHub CLI + Git LFS
+- OpenSSH client + server
 - Docker + Compose
 - tmux configuration
 - ripgrep, fd, fzf, jq, shellcheck
