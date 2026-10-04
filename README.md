@@ -23,7 +23,7 @@ For non-interactive installation:
 - Bun
 - Rust
 - Go
-- PHP 8.5 CLI + FPM
+- PHP 8.5 CLI + FPM + Composer
 - Python + venv + pipx
 - GitHub CLI + Git LFS
 - OpenSSH client + server
@@ -33,7 +33,7 @@ For non-interactive installation:
 - DNS/network troubleshooting tools
 - Herdr
 - RTK
-- Composer
+- Composer + Phpactor (standalone PHAR)
 - global agent instructions
 - language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, C/C++, C#, Java, and Kotlin
 - verification script
