@@ -28,7 +28,6 @@ For non-interactive installation:
 - GitHub CLI + Git LFS
 - OpenSSH client + server
 - Docker + Compose
-- tmux configuration
 - ripgrep, fd, fzf, jq, shellcheck
 - direnv
 - DNS/network troubleshooting tools
