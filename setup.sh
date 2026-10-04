@@ -167,8 +167,84 @@ export GOROOT="${GOROOT:-$HOME/.go}"
 export GOPATH="${GOPATH:-$HOME/go}"
 export PATH="$GOROOT/bin:$GOPATH/bin:$HOME/.local/bin:$PATH"
 
+log "Installing Go LSP"
+go install golang.org/x/tools/gopls@latest
+
+log "Installing Rust LSP"
+rustup component add rust-src rust-analyzer
+
+log "Installing PHP tooling"
+if ! command -v composer >/dev/null 2>&1; then
+  EXPECTED_CHECKSUM="$(curl -fsSL https://composer.github.io/installer.sig)"
+  curl -fsSL https://getcomposer.org/installer -o /tmp/composer-setup.php
+  ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
+  if [[ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]]; then
+    warn "Composer installer checksum mismatch."
+    rm -f /tmp/composer-setup.php
+    exit 1
+  fi
+  php /tmp/composer-setup.php --install-dir="$HOME/.local/bin" --filename=composer
+  rm -f /tmp/composer-setup.php
+fi
+export PATH="$(composer global config bin-dir --absolute 2>/dev/null):$HOME/.local/bin:$PATH"
+if [[ -z "$(composer global config bin-dir --absolute 2>/dev/null)" ]]; then
+  warn "Could not resolve Composer global bin directory."
+  exit 1
+fi
+if ! command -v phpactor >/dev/null 2>&1; then
+  composer global require --no-interaction phpactor/phpactor
+fi
+COMPOSER_BIN_DIR="$(composer global config bin-dir --absolute)"
+grep -qxF "export PATH=\"$COMPOSER_BIN_DIR:$HOME/.local/bin:$PATH\"" "$HOME/.bashrc" 2>/dev/null ||   printf '\nexport PATH="$COMPOSER_BIN_DIR:$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
+
 log "Enabling PHP-FPM"
 sudo systemctl enable --now php8.5-fpm
+
+log "Installing Java LSP"
+JDTLS_DIR="$HOME/.local/share/jdtls"
+if [[ ! -x "$JDTLS_DIR/bin/jdtls" ]]; then
+  rm -rf "$JDTLS_DIR.tmp"
+  mkdir -p "$JDTLS_DIR.tmp"
+  curl -fsSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz | tar -xz -C "$JDTLS_DIR.tmp"
+  rm -rf "$JDTLS_DIR"
+  mv "$JDTLS_DIR.tmp" "$JDTLS_DIR"
+fi
+ln -sf "$JDTLS_DIR/bin/jdtls" "$HOME/.local/bin/jdtls"
+
+log "Installing Kotlin LSP"
+KOTLIN_LSP_VERSION="$(curl -fsSL https://api.github.com/repos/Kotlin/kotlin-lsp/releases/latest | jq -r '.tag_name' | sed 's#^kotlin-lsp/v##')"
+if [[ -z "$KOTLIN_LSP_VERSION" || "$KOTLIN_LSP_VERSION" == "null" ]]; then
+  warn "Could not determine the latest Kotlin LSP version."
+  exit 1
+fi
+KOTLIN_LSP_DIR="$HOME/.local/share/kotlin-lsp/$KOTLIN_LSP_VERSION"
+if [[ ! -x "$KOTLIN_LSP_DIR/bin/intellij-server" ]]; then
+  mkdir -p "$KOTLIN_LSP_DIR"
+  curl -fsSL "https://download.jetbrains.com/language-server/kotlin-server/$KOTLIN_LSP_VERSION/kotlin-server-$KOTLIN_LSP_VERSION.tar.gz" | tar -xz -C "$KOTLIN_LSP_DIR"
+fi
+ln -sfn "$KOTLIN_LSP_DIR" "$HOME/.local/share/kotlin-lsp/current"
+ln -sf "$HOME/.local/share/kotlin-lsp/current/bin/intellij-server" "$HOME/.local/bin/kotlin-lsp"
+
+log "Installing .NET SDK 10"
+if ! command -v dotnet >/dev/null 2>&1; then
+  curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+  bash /tmp/dotnet-install.sh --channel 10.0 --install-dir "$HOME/.dotnet" --no-path
+  rm -f /tmp/dotnet-install.sh
+fi
+export DOTNET_ROOT="$HOME/.dotnet"
+export PATH="$DOTNET_ROOT:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"
+grep -qxF 'export DOTNET_ROOT="$HOME/.dotnet"' "$HOME/.bashrc" 2>/dev/null ||   printf '\nexport DOTNET_ROOT="$HOME/.dotnet"\n' >> "$HOME/.bashrc"
+grep -qxF 'export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null ||   printf 'export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
+
+log "Installing C# LSP"
+if command -v csharp-ls >/dev/null 2>&1; then
+  dotnet tool update --global csharp-ls || true
+else
+  dotnet tool install --global csharp-ls
+fi
+
+log "Installing JavaScript/TypeScript, Python, and Bash LSPs"
+npm install -g typescript-language-server typescript@6 pyright bash-language-server
 
 case "$AGENT" in
   pi)
