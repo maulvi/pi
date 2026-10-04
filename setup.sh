@@ -158,7 +158,13 @@ log "Installing Bun"
 if ! command -v bun >/dev/null 2>&1; then
   curl -fsSL https://bun.sh/install | bash
 fi
-export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+BUN_BIN_DIR="$(bun pm bin -g 2>/dev/null || printf '%s/bin' "$BUN_INSTALL")"
+export PATH="$BUN_BIN_DIR:$HOME/.local/bin:$PATH"
+grep -qxF 'export BUN_INSTALL="$HOME/.bun"' "$HOME/.bashrc" 2>/dev/null || \
+  printf '\nexport BUN_INSTALL="$HOME/.bun"\n' >> "$HOME/.bashrc"
+grep -qxF 'export PATH="$BUN_INSTALL/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
+  printf 'export PATH="$BUN_INSTALL/bin:$PATH"\n' >> "$HOME/.bashrc"
 
 log "Installing Rust"
 if ! command -v cargo >/dev/null 2>&1; then
