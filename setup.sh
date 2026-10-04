@@ -144,6 +144,10 @@ log "Installing Herdr"
 curl -fsSL https://herdr.dev/install.sh | sh
 export PATH="$HOME/.local/bin:$HOME/.local/share/herdr/bin:$PATH"
 
+log "Installing RTK"
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+export PATH="$HOME/.local/bin:$HOME/.local/share/rtk/bin:$PATH"
+
 case "$AGENT" in
   pi)
     log "Installing Pi Coding Agent"
