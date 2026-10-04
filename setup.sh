@@ -224,13 +224,38 @@ if [[ -z "$KOTLIN_LSP_VERSION" || "$KOTLIN_LSP_VERSION" == "null" ]]; then
   warn "Could not determine the latest Kotlin LSP version."
   exit 1
 fi
+
+case "$(dpkg --print-architecture)" in
+  amd64) KOTLIN_LSP_ARCH="";;
+  arm64) KOTLIN_LSP_ARCH="-aarch64";;
+  *)
+    warn "Unsupported architecture for Kotlin LSP: $(dpkg --print-architecture)"
+    exit 1
+    ;;
+esac
+
 KOTLIN_LSP_DIR="$HOME/.local/share/kotlin-lsp/$KOTLIN_LSP_VERSION"
-if [[ ! -x "$KOTLIN_LSP_DIR/bin/intellij-server" ]]; then
-  mkdir -p "$KOTLIN_LSP_DIR"
-  curl -fsSL "https://download.jetbrains.com/language-server/kotlin-server/$KOTLIN_LSP_VERSION/kotlin-server-$KOTLIN_LSP_VERSION.tar.gz" | tar -xz -C "$KOTLIN_LSP_DIR"
+KOTLIN_LSP_ARCHIVE="kotlin-server-$KOTLIN_LSP_VERSION${KOTLIN_LSP_ARCH}.tar.gz"
+if [[ ! -x "$KOTLIN_LSP_DIR/bin/intellij-server" && ! -x "$KOTLIN_LSP_DIR/kotlin-lsp.sh" ]]; then
+  rm -rf "$KOTLIN_LSP_DIR.tmp"
+  mkdir -p "$KOTLIN_LSP_DIR.tmp"
+  curl -fsSL "https://download.jetbrains.com/language-server/kotlin-server/$KOTLIN_LSP_VERSION/$KOTLIN_LSP_ARCHIVE" | tar -xz -C "$KOTLIN_LSP_DIR.tmp"
+  rm -rf "$KOTLIN_LSP_DIR"
+  mv "$KOTLIN_LSP_DIR.tmp" "$KOTLIN_LSP_DIR"
 fi
+
+if [[ -x "$KOTLIN_LSP_DIR/bin/intellij-server" ]]; then
+  KOTLIN_LSP_BIN="$KOTLIN_LSP_DIR/bin/intellij-server"
+elif [[ -x "$KOTLIN_LSP_DIR/kotlin-lsp.sh" ]]; then
+  KOTLIN_LSP_BIN="$KOTLIN_LSP_DIR/kotlin-lsp.sh"
+else
+  warn "Kotlin LSP launcher was not found after installation."
+  exit 1
+fi
+
 ln -sfn "$KOTLIN_LSP_DIR" "$HOME/.local/share/kotlin-lsp/current"
-ln -sf "$HOME/.local/share/kotlin-lsp/current/bin/intellij-server" "$HOME/.local/bin/kotlin-lsp"
+ln -sfn "$KOTLIN_LSP_BIN" "$HOME/.local/bin/kotlin-lsp"
+chmod +x "$KOTLIN_LSP_BIN"
 
 log "Installing .NET SDK 10"
 if ! command -v dotnet >/dev/null 2>&1; then
