@@ -35,7 +35,7 @@ For non-interactive installation:
 - RTK
 - Composer + Phpactor (standalone PHAR)
 - global agent instructions
-- language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, C/C++, C#, Java, and Kotlin
+- language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, and C/C++
 - verification script
 
 Only the selected coding agent is installed.
@@ -65,8 +65,5 @@ Community extensions/packages should be installed separately after reviewing the
 - PHP — `phpactor`
 - Bash — `bash-language-server`
 - C / C++ — `clangd`
-- C# — `csharp-ls`
-- Java — `jdtls`
-- Kotlin — JetBrains Kotlin LSP (`kotlin-lsp`)
 
 The installer uses the project-specific package manager or official upstream distribution for each server where practical.
