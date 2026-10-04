@@ -173,6 +173,13 @@ log "Installing tmux configuration"
 mkdir -p "$HOME/.config/tmux"
 install -m 0644 "$SCRIPT_DIR/config/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 
+log "Enabling OpenSSH server"
+if command -v systemctl >/dev/null 2>&1; then
+  sudo systemctl enable --now ssh
+else
+  warn "systemctl is not available; OpenSSH server was installed but not enabled automatically."
+fi
+
 log "Installing latest Docker"
 curl -fsSL https://get.docker.com | sudo sh
 
