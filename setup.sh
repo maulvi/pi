@@ -199,16 +199,10 @@ if ! command -v composer >/dev/null 2>&1; then
   php /tmp/composer-setup.php --install-dir="$HOME/.local/bin" --filename=composer
   rm -f /tmp/composer-setup.php
 fi
-export PATH="$(composer global config bin-dir --absolute 2>/dev/null):$HOME/.local/bin:$PATH"
-if [[ -z "$(composer global config bin-dir --absolute 2>/dev/null)" ]]; then
-  warn "Could not resolve Composer global bin directory."
-  exit 1
-fi
-if ! command -v phpactor >/dev/null 2>&1; then
-  composer global require --no-interaction phpactor/phpactor
-fi
-COMPOSER_BIN_DIR="$(composer global config bin-dir --absolute)"
-grep -qxF "export PATH=\"$COMPOSER_BIN_DIR:$HOME/.local/bin:$PATH\"" "$HOME/.bashrc" 2>/dev/null ||   printf '\nexport PATH="$COMPOSER_BIN_DIR:$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
+
+log "Installing Phpactor"
+curl -fsSL https://github.com/phpactor/phpactor/releases/latest/download/phpactor.phar   -o "$HOME/.local/bin/phpactor"
+chmod +x "$HOME/.local/bin/phpactor"
 
 log "Enabling PHP-FPM"
 sudo systemctl enable --now php8.5-fpm
