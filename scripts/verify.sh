@@ -38,7 +38,7 @@ check_compose() {
   fi
 }
 
-for cmd in git curl node npm bun python3 cargo docker gh rg fd fzf jq tmux herdr; do
+for cmd in git curl node npm bun python3 cargo docker gh rg fd fzf jq tmux herdr rtk; do
   check "$cmd"
 done
 
