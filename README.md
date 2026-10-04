@@ -1,6 +1,6 @@
 # Pi Vibecoding — Debian
 
-A production-friendly Debian bootstrap for Pi Coding Agent.
+A production-friendly Debian bootstrap for Pi Coding Agent or Oh My Pi.
 
 ## Install
 
@@ -11,53 +11,42 @@ A production-friendly Debian bootstrap for Pi Coding Agent.
 
 The installer is idempotent and can be run again safely.
 
+For non-interactive installation:
+
+    ./setup.sh --agent pi
+    ./setup.sh --agent omp
+
 ## Included
 
-- Debian development tools
+- Debian development and debugging tools
 - Node.js LTS via fnm
-- npm + Pi Coding Agent
 - Bun
-- Oh My Pi (OMP)
-- GitHub CLI
-- Docker + Compose
-- Python + venv
 - Rust
+- Python + venv + pipx
+- GitHub CLI + Git LFS
+- Docker + Compose
 - tmux configuration
 - ripgrep, fd, fzf, jq, shellcheck
-- global Pi AGENTS.md
+- direnv
+- DNS/network troubleshooting tools
+- Herdr
+- global agent instructions
 - verification script
 
-Pi and OMP are installed as separate CLIs:
-
-    pi
-    omp
-
-## Language Playbooks
-
-The global rules stay intentionally small. Language-specific guidance lives under `languages/`:
-
-- `typescript` — TypeScript/Node.js
-- `python` — Python
-- `rust` — Rust
-- `go` — Go
-- `java` — Java
-- `csharp` — C#
-- `cpp` — C++
-- `php` — PHP
-- `kotlin` — Kotlin
-- `bash` — Bash/shell automation
-
-These guides focus on maintainable design, consistent naming, testability, error handling, and performance choices by workload. Project-local conventions always take precedence.
+Only the selected coding agent is installed.
 
 After installation:
 
+    ./scripts/verify.sh --agent pi
+    # or
+    ./scripts/verify.sh --agent omp
+
+Then launch the selected agent:
+
     pi
-
-or:
-
+    # or
     omp
 
-Inside the agent, authenticate/configure the provider according to the agent's setup flow.
+Inside the agent, authenticate/configure the provider according to its setup flow.
 
-Pi and OMP are intentionally kept separate so either CLI can be used for different workflows.
 Community extensions/packages should be installed separately after reviewing their source.
