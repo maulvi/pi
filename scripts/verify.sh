@@ -18,22 +18,36 @@ case "$AGENT" in
     ;;
 esac
 
+# Include common user-local install locations. Not every tool is installed
+# through APT or placed in a system PATH.
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:$PATH"
+
+# fnm-managed Node/npm may need its shell environment initialized.
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --shell bash 2>/dev/null)" || true
+fi
+
 missing=0
 
 check() {
-  if command -v "$1" >/dev/null 2>&1; then
-    printf 'OK   %-12s %s\n' "$1" "$("$1" --version 2>/dev/null | head -n1)"
-  else
-    printf 'MISS %-12s\n' "$1"
-    missing=1
+  local name="$1"
+  local path
+  path="$(command -v "$name" 2>/dev/null || true)"
+
+  if [[ -n "$path" ]]; then
+    printf 'OK   %-22s %s\n' "$name" "$path"
+    return
   fi
+
+  printf 'MISS %-22s\n' "$name"
+  missing=1
 }
 
 check_compose() {
-  if docker compose version >/dev/null 2>&1; then
-    printf 'OK   %-12s %s\n' "docker-compose" "$(docker compose version 2>/dev/null | head -n1)"
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    printf 'OK   %-22s %s\n' "docker-compose" "$(docker compose version 2>/dev/null | head -n1)"
   else
-    printf 'MISS %-12s\n' "docker-compose"
+    printf 'MISS %-22s\n' "docker-compose"
     missing=1
   fi
 }
@@ -44,35 +58,21 @@ done
 
 check_compose
 check "$AGENT"
-
-if [[ -x /usr/sbin/php-fpm8.5 ]]; then
-  printf 'OK   %-12s %s\n' "php-fpm8.5" "$(/usr/sbin/php-fpm8.5 -v 2>/dev/null | head -n1)"
-else
-  printf 'MISS %-12s\n' "php-fpm8.5"
-  missing=1
-fi
+check php-fpm8.5
+check sshd
 
 if command -v systemctl >/dev/null 2>&1; then
   if systemctl is-active --quiet php8.5-fpm; then
-    printf 'OK   %-12s active\n' "php8.5-fpm"
+    printf 'OK   %-22s active\n' "php8.5-fpm"
   else
-    printf 'MISS %-12s inactive\n' "php8.5-fpm"
+    printf 'MISS %-22s inactive\n' "php8.5-fpm"
     missing=1
   fi
-fi
 
-if [[ -x /usr/sbin/sshd ]]; then
-  printf 'OK   %-12s %s\n' "sshd" "$(/usr/sbin/sshd -V 2>&1 | head -n1)"
-else
-  printf 'MISS %-12s\n' "sshd"
-  missing=1
-fi
-
-if command -v systemctl >/dev/null 2>&1; then
   if systemctl is-active --quiet ssh; then
-    printf 'OK   %-12s active\n' "ssh-service"
+    printf 'OK   %-22s active\n' "ssh-service"
   else
-    printf 'MISS %-12s inactive\n' "ssh-service"
+    printf 'MISS %-22s inactive\n' "ssh-service"
     missing=1
   fi
 fi
