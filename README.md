@@ -33,6 +33,8 @@ For non-interactive installation:
 - direnv
 - DNS/network troubleshooting tools
 - Herdr
+- RTK
+- Composer
 - global agent instructions
 - language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, C/C++, C#, Java, and Kotlin
 - verification script
