@@ -101,7 +101,7 @@ sudo apt-get update
 sudo apt-get install -y \
   build-essential git git-lfs curl wget unzip zip tar gzip ca-certificates \
   gnupg jq ripgrep fd-find fzf tree tmux htop btop rsync direnv \
-  openssh-client procps file less man-db shellcheck pkg-config \
+  openssh-client openssh-server procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv pipx zsh neovim bash-completion \
   dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
   gh kitty-terminfo
