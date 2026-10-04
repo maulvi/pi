@@ -20,7 +20,7 @@ esac
 
 # Include common user-local install locations. Not every tool is installed
 # through APT or placed in a system PATH.
-export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.local/share/fnm:$HOME/.fnm:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
 # fnm-managed Node/npm may need its shell environment initialized.
 if command -v fnm >/dev/null 2>&1; then
@@ -52,7 +52,7 @@ check_compose() {
   fi
 }
 
-for cmd in git curl node npm bun python3 php go rust-analyzer gopls phpactor bash-language-server clangd csharp-ls jdtls kotlin-lsp composer dotnet cargo docker gh rg fd fzf jq herdr rtk; do
+for cmd in git curl node npm bun python3 php go rust-analyzer gopls phpactor bash-language-server clangd composer cargo docker gh rg fd fzf jq herdr rtk; do
   check "$cmd"
 done
 
