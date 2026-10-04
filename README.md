@@ -34,6 +34,7 @@ For non-interactive installation:
 - DNS/network troubleshooting tools
 - Herdr
 - global agent instructions
+- language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, C/C++, C#, Java, and Kotlin
 - verification script
 
 Only the selected coding agent is installed.
@@ -53,3 +54,18 @@ Then launch the selected agent:
 Inside the agent, authenticate/configure the provider according to its setup flow.
 
 Community extensions/packages should be installed separately after reviewing their source.
+
+## Installed Language Servers
+
+- JavaScript / TypeScript — `typescript-language-server`
+- Python — `pyright`
+- Rust — `rust-analyzer`
+- Go — `gopls`
+- PHP — `phpactor`
+- Bash — `bash-language-server`
+- C / C++ — `clangd`
+- C# — `csharp-ls`
+- Java — `jdtls`
+- Kotlin — JetBrains Kotlin LSP (`kotlin-lsp`)
+
+The installer uses the project-specific package manager or official upstream distribution for each server where practical.
