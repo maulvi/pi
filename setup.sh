@@ -96,14 +96,27 @@ case "$AGENT" in
     ;;
 esac
 
-log "Installing Debian packages"
+log "Configuring PHP repository"
 sudo apt-get update
+sudo apt-get install -y lsb-release ca-certificates curl
+sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+sudo apt-get update
+
+if ! apt-cache show php8.5-cli >/dev/null 2>&1 || ! apt-cache show php8.5-fpm >/dev/null 2>&1; then
+  warn "PHP 8.5 packages are not available for this Debian release from packages.sury.org."
+  exit 1
+fi
+
+log "Installing Debian packages"
 sudo apt-get install -y \
   build-essential git git-lfs curl wget unzip zip tar gzip ca-certificates \
   gnupg jq ripgrep fd-find fzf tree tmux htop btop rsync direnv \
   openssh-client openssh-server procps file less man-db shellcheck pkg-config \
   python3 python3-pip python3-venv pipx zsh neovim bash-completion \
   dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
+  php8.5-cli php8.5-fpm \
   gh kitty-terminfo
 
 log "Configuring local bin"
@@ -147,6 +160,15 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/herdr/bin:$PATH"
 log "Installing RTK"
 curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 export PATH="$HOME/.local/bin:$HOME/.local/share/rtk/bin:$PATH"
+
+log "Installing Go"
+curl -sL https://git.io/go-installer | bash
+export GOROOT="${GOROOT:-$HOME/.go}"
+export GOPATH="${GOPATH:-$HOME/go}"
+export PATH="$GOROOT/bin:$GOPATH/bin:$HOME/.local/bin:$PATH"
+
+log "Enabling PHP-FPM"
+sudo systemctl enable --now php8.5-fpm
 
 case "$AGENT" in
   pi)
