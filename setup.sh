@@ -25,6 +25,12 @@ if [[ -z "$TARGET_HOME" || "$TARGET_HOME" != "$HOME" ]]; then
   exit 1
 fi
 
+# Detect tools installed in the user's home directory before installing anything.
+export PATH="$HOME/.local/bin:$HOME/.bun/bin:$HOME/.cargo/bin:$HOME/.go/bin:$HOME/go/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$HOME/.local/share/fnm:$HOME/.fnm:$HOME/.local/share/herdr/bin:$HOME/.local/share/rtk/bin:$HOME/.config/composer/vendor/bin:$HOME/.npm-global/bin:$PATH"
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --shell bash 2>/dev/null)" || true
+fi
+
 if [[ ! -r /etc/os-release ]] || ! . /etc/os-release || [[ "${ID:-}" != "debian" ]]; then
   warn "This installer supports Debian only."
   exit 1
