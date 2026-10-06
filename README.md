@@ -19,7 +19,7 @@ For non-interactive installation:
 ## Included
 
 - Debian development and debugging tools
-- Node.js LTS via fnm
+- Node.js 22+ LTS via fnm (required by current Pi)
 - Bun
 - Rust
 - Go
@@ -38,7 +38,7 @@ For non-interactive installation:
 - language servers for JavaScript/TypeScript, Python, Rust, Go, PHP, Bash, and C/C++
 - verification script
 
-Only the selected coding agent is installed.
+Only the selected coding agent is installed. Pi uses the current `@earendil-works/pi-coding-agent` package; the old `@mariozechner/pi-coding-agent` package is deprecated.
 
 After installation:
 
