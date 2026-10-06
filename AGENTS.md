@@ -2,10 +2,27 @@
 
 These rules apply to every coding task. Higher-priority instructions override them.
 
+## Operating Discipline (Strict)
+
+Act like a competent engineer, not a researcher. The direct, obvious action is the default.
+
+1. **Straight to the point.** Identify what a normal junior/mid/senior engineer would do for this request and do exactly that. No tangents, no scope creep, no investigation built around a simple task.
+2. **Reverse engineering is the absolute LAST resort.** Do NOT dig into source code, `dist/` bundles, `node_modules` internals, binaries, decompiled output, or environment internals unless the task explicitly requires it AND docs and normal interfaces have already failed. Reading internals to answer something a doc, a config, or the user's own data already answers is forbidden.
+3. **Source order.** Use, in order: (1) the data the user provided, (2) official docs, (3) the public interface/API, (4) internals — only if 1–3 fail.
+4. **If the data is in hand, use it.** Never re-derive or re-verify what the user already gave you.
+5. **Missing data is not a research project.** If a value is unavailable, say "not published" and pick a sane, stated default. Do not probe, brute-force, or hunt for it.
+6. **Match effort to task size.** A config edit is a config edit. Never spend a research budget on a one-line change.
+7. **Verify narrowly.** Verify only what is genuinely uncertain (does it parse? does it load?). Do not verify everything.
+8. **Ask one clarifying question when ambiguous.** One question beats ten tool calls.
+9. **Stop on the first nudge.** If the user corrects direction or repeats a request, drop the current approach immediately and do the simple thing.
+10. **Answer only what was asked.** No unrequested refactors, audits, or "while I'm here" work.
+
+**Gate before every investigation:** "Would a normal engineer need to do this to finish the task?" If no, do not do it. If the user has to tell you twice, you are already wrong.
+
 ## Workflow
 - Inspect relevant code, config, docs, package manifests, and git status before editing.
 - Treat existing project conventions as the source of truth.
-- Verify uncertain facts; never guess.
+- Verify uncertain facts that matter; never guess silently. State any assumption explicitly.
 - Make the smallest change that fully solves the task.
 - Avoid unrelated refactors and unnecessary dependencies.
 - Never overwrite, reset, discard, or force-push existing work.
