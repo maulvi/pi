@@ -108,6 +108,173 @@ case "$AGENT" in
     ;;
 esac
 
+log "Configuring system locale and timezone"
+sudo apt-get update
+sudo apt-get install -y locales tzdata
+sudo sed -i 's/^# *en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+if ! grep -q '^en_US.UTF-8 UTF-8sudo apt-get update
+sudo apt-get install -y lsb-release ca-certificates curl
+sudo curl -sSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb
+sudo dpkg -i /tmp/debsuryorg-archive-keyring.deb
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+sudo apt-get update
+
+if ! apt-cache show php8.5-cli >/dev/null 2>&1 || ! apt-cache show php8.5-fpm >/dev/null 2>&1; then
+  warn "PHP 8.5 packages are not available for this Debian release from packages.sury.org."
+  exit 1
+fi
+
+log "Installing Debian packages"
+sudo apt-get install -y \
+  build-essential git git-lfs curl wget unzip zip tar gzip ca-certificates \
+  gnupg jq ripgrep fd-find fzf tree htop btop rsync direnv \
+  openssh-client openssh-server procps file less man-db shellcheck pkg-config \
+  python3 python3-pip python3-venv pipx zsh neovim bash-completion \
+  dnsutils iproute2 iputils-ping lsof netcat-openbsd socat strace \
+  php8.5-cli php8.5-fpm php8.5-mbstring \
+  clangd \
+  gh kitty-terminfo
+
+log "Configuring local bin"
+mkdir -p "$HOME/.local/bin"
+if command -v fdfind >/dev/null 2>&1; then
+  ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+fi
+grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
+  printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
+
+log "Installing fnm"
+if ! command -v fnm >/dev/null 2>&1; then
+  curl -fsSL https://fnm.vercel.app/install | bash
+fi
+
+export PATH="$HOME/.local/share/fnm:$HOME/.fnm:$HOME/.local/bin:$PATH"
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --shell bash)"
+  fnm install --lts
+  fnm default "$(fnm current)"
+else
+  warn "fnm is not available in this shell."
+fi
+
+log "Installing Bun"
+if ! command -v bun >/dev/null 2>&1; then
+  curl -fsSL https://bun.sh/install | bash
+fi
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+BUN_BIN_DIR="$(bun pm bin -g 2>/dev/null || printf '%s/bin' "$BUN_INSTALL")"
+export PATH="$BUN_BIN_DIR:$HOME/.local/bin:$PATH"
+grep -qxF 'export BUN_INSTALL="$HOME/.bun"' "$HOME/.bashrc" 2>/dev/null || \
+  printf '\nexport BUN_INSTALL="$HOME/.bun"\n' >> "$HOME/.bashrc"
+grep -qxF 'export PATH="$BUN_INSTALL/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null || \
+  printf 'export PATH="$BUN_INSTALL/bin:$PATH"\n' >> "$HOME/.bashrc"
+
+log "Installing Rust"
+if ! command -v cargo >/dev/null 2>&1; then
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+fi
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+log "Installing Herdr"
+curl -fsSL https://herdr.dev/install.sh | sh
+export PATH="$HOME/.local/bin:$HOME/.local/share/herdr/bin:$PATH"
+
+log "Installing RTK"
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
+export PATH="$HOME/.local/bin:$HOME/.local/share/rtk/bin:$PATH"
+
+log "Installing Go"
+curl -sL https://git.io/go-installer | bash
+export GOROOT="${GOROOT:-$HOME/.go}"
+export GOPATH="${GOPATH:-$HOME/go}"
+export PATH="$GOROOT/bin:$GOPATH/bin:$HOME/.local/bin:$PATH"
+
+log "Installing Go LSP"
+go install golang.org/x/tools/gopls@latest
+
+log "Installing Rust LSP"
+rustup component add rust-src rust-analyzer
+
+log "Installing PHP tooling"
+if ! command -v composer >/dev/null 2>&1; then
+  EXPECTED_CHECKSUM="$(curl -fsSL https://composer.github.io/installer.sig)"
+  curl -fsSL https://getcomposer.org/installer -o /tmp/composer-setup.php
+  ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', '/tmp/composer-setup.php');")"
+  if [[ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]]; then
+    warn "Composer installer checksum mismatch."
+    rm -f /tmp/composer-setup.php
+    exit 1
+  fi
+  php /tmp/composer-setup.php --install-dir="$HOME/.local/bin" --filename=composer
+  rm -f /tmp/composer-setup.php
+fi
+
+log "Installing Phpactor"
+curl -fsSL https://github.com/phpactor/phpactor/releases/latest/download/phpactor.phar   -o "$HOME/.local/bin/phpactor"
+chmod +x "$HOME/.local/bin/phpactor"
+
+log "Enabling PHP-FPM"
+sudo systemctl enable --now php8.5-fpm
+
+
+log "Installing JavaScript/TypeScript, Python, and Bash LSPs"
+npm install -g typescript-language-server typescript@6 pyright bash-language-server
+
+case "$AGENT" in
+  pi)
+    log "Installing Pi Coding Agent"
+    if ! command -v npm >/dev/null 2>&1; then
+      warn "npm is not available in this shell."
+      exit 1
+    fi
+    npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+    AGENT_DIR="$HOME/.pi/agent"
+    ;;
+  omp)
+    log "Installing Oh My Pi (OMP)"
+    if ! command -v bun >/dev/null 2>&1; then
+      warn "Bun is not available in this shell."
+      exit 1
+    fi
+    bun install -g @oh-my-pi/pi-coding-agent
+    AGENT_DIR="$HOME/.omp/agent"
+    ;;
+esac
+
+log "Installing global agent instructions for ${AGENT^^}"
+mkdir -p "$AGENT_DIR"
+install -m 0644 "$SCRIPT_DIR/AGENTS.md" "$AGENT_DIR/AGENTS.md"
+
+log "Enabling OpenSSH server"
+if command -v systemctl >/dev/null 2>&1; then
+  sudo systemctl enable --now ssh
+else
+  warn "systemctl is not available; OpenSSH server was installed but not enabled automatically."
+fi
+
+log "Installing latest Docker"
+curl -fsSL https://get.docker.com | sudo sh
+
+log "Enabling Docker"
+sudo systemctl enable --now docker
+if ! id -nG "$TARGET_USER" | tr ' ' '\n' | grep -qx docker; then
+  sudo usermod -aG docker "$TARGET_USER"
+  warn "Log out and back in before using Docker without sudo."
+fi
+
+chmod +x "$SCRIPT_DIR/scripts/verify.sh"
+
+log "Done"
+printf '\nOpen a new shell, then run:\n'
+printf '  %s/scripts/verify.sh --agent %s\n' "$SCRIPT_DIR" "$AGENT"
+printf '  %s\n' "$AGENT"
+ /etc/locale.gen; then
+  echo 'en_US.UTF-8 UTF-8' | sudo tee -a /etc/locale.gen >/dev/null
+fi
+sudo locale-gen en_US.UTF-8
+sudo update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+sudo timedatectl set-timezone Asia/Jakarta
+
 log "Configuring PHP repository"
 sudo apt-get update
 sudo apt-get install -y lsb-release ca-certificates curl
