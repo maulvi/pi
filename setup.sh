@@ -224,7 +224,7 @@ case "$AGENT" in
       warn "npm is not available in this shell."
       exit 1
     fi
-    npm install -g @mariozechner/pi-coding-agent
+    npm install -g --ignore-scripts @earendil-works/pi-coding-agent
     AGENT_DIR="$HOME/.pi/agent"
     ;;
   omp)
