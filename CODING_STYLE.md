@@ -12,7 +12,22 @@ The goal is code that is easy to understand, reuse, debug, and extend—not abst
 - Do not introduce a new dependency, framework, abstraction, or convention unless it solves a real problem.
 - When existing code conflicts with these standards, follow the local convention for a narrowly scoped change; improve broader inconsistencies only when explicitly requested.
 
-## 2. Reusability and Functions
+## 2. Compatibility, Versions, and Deprecation
+
+- Identify the project's actual target versions before using language features, standard-library APIs, runtime APIs, package APIs, or external commands.
+- Treat version declarations in manifests, lockfiles, runtime configuration, CI workflows, container images, and documented support policy as the source of truth. Do not assume the newest installed version is the project's minimum supported version.
+- Use only syntax and APIs supported by the project's declared minimum target version.
+- Do not introduce deprecated, obsolete, removed, or end-of-life language features, standard-library functions, runtime APIs, package APIs, command-line flags, or dependencies in new code.
+- Prefer the current, documented replacement recommended by the official language, runtime, framework, or package documentation.
+- Check official documentation and release notes for the exact target version when compatibility or deprecation status is uncertain. Do not rely on old tutorials, search snippets, or examples written for a different major version.
+- Treat compiler, interpreter, linter, type-checker, and language-server deprecation warnings as issues to resolve—not noise to suppress.
+- Do not silence deprecation warnings or use compatibility shims merely to avoid updating code. A suppression or shim is acceptable only when required for a documented compatibility boundary, and the reason and removal condition must be documented.
+- Do not raise the minimum runtime or dependency version just to use a newer API unless the task explicitly allows the compatibility change. If a newer version is genuinely required, explain the impact and update the relevant version declarations and documentation together.
+- When maintaining legacy code, avoid expanding use of deprecated APIs. Replace them when touching the relevant code if the change is safe and within scope; otherwise document the limitation and avoid unrelated migrations.
+- Before adopting a dependency or external tool, check whether it is maintained, supported by the target runtime, and free of known deprecation or end-of-life notices relevant to the intended use.
+- Do not assume an API is deprecated solely because it looks old. Verify its status from authoritative documentation for the target version.
+
+## 3. Reusability and Functions
 
 - Extract repeated logic into a focused reusable function or helper when doing so reduces duplication and clarifies intent.
 - Reuse existing functions, variables, constants, and configuration values. Do not redefine the same behavior or value in multiple places.
@@ -23,7 +38,7 @@ The goal is code that is easy to understand, reuse, debug, and extend—not abst
 - Avoid premature abstraction: do not create a generic framework for a one-off operation without a credible reuse case.
 - Do not create wrapper functions that only rename or forward a call unless they provide a meaningful interface, validation, or policy boundary.
 
-## 3. Naming
+## 4. Naming
 
 Names must communicate purpose and meaning. Avoid vague names such as `data`, `value`, `item`, `tmp`, `do_work`, or unexplained abbreviations when a more specific name is practical.
 
@@ -49,7 +64,7 @@ Additional rules:
 - Name constants for what they represent, not their current value.
 - Avoid abbreviations unless they are widely understood in the project or ecosystem.
 
-## 4. Comments and Documentation
+## 5. Comments and Documentation
 
 Comments should explain intent, constraints, decisions, and non-obvious behavior—not translate each line of code into English.
 
@@ -63,7 +78,7 @@ Comments should explain intent, constraints, decisions, and non-obvious behavior
 - Prefer documentation at the declaration or relevant code block rather than a large unrelated explanation elsewhere.
 - Use the language's standard documentation format where available (for example, shell function comments, Python docstrings, PHPDoc, JSDoc, and Rust doc comments).
 
-## 5. Readability and Structure
+## 6. Readability and Structure
 
 - Prefer explicit, straightforward code over clever, compressed, or overly terse expressions.
 - Use guard clauses and early returns to reduce unnecessary nesting.
@@ -75,7 +90,7 @@ Comments should explain intent, constraints, decisions, and non-obvious behavior
 - Avoid unnecessary mutable state, duplicate condition checks, and dead code.
 - Do not add comments as a substitute for clear naming or structure.
 
-## 6. Configuration and State
+## 7. Configuration and State
 
 - Keep each setting or default defined in one authoritative place whenever practical.
 - Reuse existing configuration rather than duplicating values across scripts.
@@ -85,7 +100,7 @@ Comments should explain intent, constraints, decisions, and non-obvious behavior
 - Never hard-code secrets, credentials, private keys, access tokens, or machine-specific personal paths.
 - Preserve existing user configuration unless the task explicitly requires changing it.
 
-## 7. Errors, Safety, and Side Effects
+## 8. Errors, Safety, and Side Effects
 
 - Handle errors deliberately. Do not silently ignore failures unless the failure is explicitly optional and the reason is documented.
 - Return meaningful exit codes and actionable error messages.
@@ -98,7 +113,7 @@ Comments should explain intent, constraints, decisions, and non-obvious behavior
 - Make network downloads fail visibly and verify integrity when a trustworthy checksum or signature is available.
 - Do not hide errors with broad `|| true`, empty catch blocks, or equivalent constructs unless there is a documented and justified fallback.
 
-## 8. Language-Specific Guidance
+## 9. Language-Specific Guidance
 
 ### Bash
 
@@ -146,25 +161,27 @@ Comments should explain intent, constraints, decisions, and non-obvious behavior
 - Return and handle errors explicitly.
 - Keep packages focused and document exported identifiers.
 
-## 9. Changes and Review
+## 10. Changes and Review
 
 Before considering a change complete:
 
 1. Confirm the implementation follows the surrounding project structure and these standards.
 2. Check that existing helpers and configuration are reused rather than duplicated.
 3. Ensure names and comments explain the intent and contract.
-4. Remove dead code, temporary debugging output, and unrelated changes.
-5. Run the narrowest relevant formatter, linter, syntax check, or test when available.
-6. Report checks that were actually run; never claim unperformed verification.
+4. Confirm new APIs and syntax are supported by the declared target versions and do not introduce avoidable deprecations.
+5. Remove dead code, temporary debugging output, and unrelated changes.
+6. Run the narrowest relevant formatter, linter, syntax check, or test when available.
+7. Report checks that were actually run; never claim unperformed verification.
 
-## 10. Practical Decision Rule
+## 11. Practical Decision Rule
 
 When choosing between two valid implementations, prefer the one that:
 
 1. Is easier to read and understand.
 2. Reuses existing project functionality without adding unnecessary coupling.
 3. Has fewer hidden side effects and clearer inputs/outputs.
-4. Is easier to test and maintain.
-5. Introduces the least complexity needed to solve the task.
+4. Is compatible with the project's declared minimum supported versions.
+5. Is easier to test and maintain.
+6. Introduces the least complexity needed to solve the task.
 
 These standards are a quality baseline, not a reason to over-engineer simple code.
