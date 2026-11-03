@@ -2,6 +2,9 @@
 
 These rules apply to every coding task. Higher-priority instructions override them.
 
+## Coding Standards
+Before writing or modifying code, read and follow [CODING_STYLE.md](CODING_STYLE.md). These standards apply to all source files, scripts, and configuration changes in this repository. Keep this file focused on agent workflow; do not duplicate the coding standards here.
+
 ## Operating Discipline (Strict)
 
 Act like a competent engineer, not a researcher. The direct, obvious action is the default.
