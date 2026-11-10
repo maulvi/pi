@@ -150,71 +150,20 @@ The question before additional investigation is: **Will this information materia
 - Make network downloads fail visibly. Verify signatures or checksums when trustworthy verification data is available.
 - Avoid broad error suppression, including blanket error-ignoring commands, empty catch blocks, and wide lint suppressions. Use it only for understood, expected failure paths and explain the reason.
 
-## 7. Language and Tooling Standards
+## 7. Tooling and Language References
 
-Follow the project's configured tooling first. Use formatters for formatting, linters and static analyzers for detectable issues, type checkers for type contracts, and tests for runtime behavior. These tools provide evidence, not proof.
+- Check project instructions and configuration first: `README.md`, manifests (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `composer.json`), compiler settings, formatter/linter config, and CI workflows.
+- Prefer the configured LSP for code navigation and diagnostics. Otherwise use the project's compiler, type checker, linter, and tests.
+- Follow the project's existing conventions and the official documentation for its supported versions.
+- Useful starting points: Bash — `bash -n`, ShellCheck, shfmt; JS/TS — package scripts, `tsc`; Python — project scripts, pytest, configured type checker; PHP — Composer scripts; Rust — `cargo fmt`, `cargo clippy`, `cargo test`; Go — `gofmt`, `go vet`, `go test`.
+- Run only tools relevant to the change. Do not add tooling or language servers without a concrete need.
 
-### Language server preference
+## 8. Environment and Project Locations
 
-When the relevant language server is installed, configured, and exposed, prefer it for semantic operations such as definitions, references, symbols, types, diagnostics, rename, and code actions.
-
-| Language | Language server |
-|---|---|
-| JavaScript / TypeScript | typescript-language-server |
-| Python | pyright |
-| Rust | rust-analyzer |
-| Go | gopls |
-| PHP | phpactor |
-| Bash | bash-language-server |
-| C / C++ | clangd |
-
-Respect project metadata such as tsconfig.json, pyproject.toml, Cargo.toml, go.mod, and composer.json. Do not add another language server unless the project requires it. If LSP is unavailable or cannot index the project, use the compiler, interpreter, type checker, linter, tests, or focused source inspection. Treat LSP output as evidence, not absolute truth.
-
-### Bash
-
-Bash is a primary implementation language in this repository. Follow Bash semantics deliberately; do not assume Bash scripts are POSIX sh scripts.
-
-- Bash scripts MUST use an accurate Bash shebang, normally #!/usr/bin/env bash. Do not use Bash-only syntax in scripts declared or executed as POSIX sh.
-- Follow the repository's formatter configuration. Use shfmt when installed or configured; do not invent flags that conflict with local conventions.
-- Run ShellCheck with the correct shell dialect. ShellCheck is not a general checker for every shell.
-- Quote variable expansions by default. Use arrays for argument lists and "$@" to preserve argument boundaries. Do not build commands as strings and rely on word splitting.
-- Use [[ ... ]] for Bash conditionals, $(...) for command substitution, and local for function-scoped variables.
-- Do not parse ls output or use fragile whitespace-delimited filename parsing.
-- Check for optional commands before relying on them. Distinguish optional tools from required dependencies.
-- Avoid eval. Use it only when genuinely required to initialize a trusted tool's generated shell environment; never pass untrusted input to it. Source only files whose origin and contents are trusted.
-- set -e, set -u, and set -o pipefail MAY be used when their behavior is understood and compatible with control flow. They are not substitutes for explicit error checks. In particular, set -e does not catch every failure; behavior depends on conditionals, lists, functions, and command substitutions.
-- Handle expected non-zero statuses explicitly, such as a search returning no matches. Check important command results and validate outputs before using them.
-- Use traps for cleanup when temporary resources or background processes are created. Keep trap behavior predictable and do not unintentionally replace existing traps.
-- Send diagnostics to standard error and reserve standard output for useful command output when practical.
-- Prefer invoking only the individual privileged command through sudo instead of running an entire installer as root when user-level work is also required. Resolve the intended user and HOME deliberately across privilege transitions.
-- Use mktemp for temporary files and clean them up on success and failure. Avoid downloading a script and immediately executing it as root unless the upstream installation method requires it and the source is trusted.
-- Write configuration changes atomically where practical, preserve existing content, and make repeated execution safe.
-- Use bash -n for Bash syntax validation, ShellCheck for static analysis, and shfmt for formatting when adopted by the repository. A clean lint run does not prove a script is correct, secure, portable, or safe to execute.
-
-### Other languages
-
-- **Python:** Follow PEP 8 and project tooling. Use type hints for non-trivial reusable interfaces and public APIs. Use docstrings when contracts are not obvious. Prefer the standard library unless a dependency is justified.
-- **JavaScript / TypeScript:** Follow the repository's formatter, linter, TypeScript configuration, and package-manager conventions. Prefer const; use let when reassignment is needed. Give exported TypeScript APIs useful explicit types. Avoid any unless interoperability requires it and the boundary is documented. Handle rejected promises and asynchronous errors.
-- **PHP:** Follow the declared PHP version and Composer configuration. Use PSR-12 as a baseline when no framework-specific convention overrides it. Follow framework and package conventions.
-- **Rust:** Follow rustfmt, compiler diagnostics, and relevant Clippy guidance. Use Result and appropriate error types for recoverable failures; avoid panics for ordinary errors in reusable code. Respect the declared edition and minimum Rust version.
-- **Go:** Follow gofmt, official Go Code Review Comments, and standard naming conventions. Return and handle errors explicitly. Document exported identifiers and respect the supported Go version.
-- **Other languages:** Identify the language's official style guide, supported version, formatter, linter, and relevant static-analysis tools before defining repository-specific conventions.
-
-## 8. Environment Awareness
-
-The setup script installs runtimes, CLI tools, and language servers from both Debian packages and user-local locations. Do not assume an executable is available through APT or a system-wide PATH.
-
-Check the effective user's environment and relevant locations when diagnosing command-not-found or version issues, including:
-
-- $HOME/.local/bin
-- $HOME/.bun/bin
-- $HOME/.cargo/bin
-- $HOME/.go/bin
-- $HOME/go/bin
-- $HOME/.dotnet/tools
-
-Account for the actual user, HOME, PATH, shell initialization, and privilege context. Do not assume that root and the invoking user share the same installed tools or configuration.
-
+- For missing commands or version issues, check `command -v`, `type -a`, `PATH`, `HOME`, the active user, and the tool's version.
+- In this repository, start with `setup.sh` for installation logic and `scripts/verify.sh` for post-install checks. Check the relevant project config and shell startup files (`.profile`, `.bashrc`, `.zshrc`) before assuming a tool is not installed.
+- Check user-local binaries when needed: `$HOME/.local/bin`, `$HOME/.bun/bin`, `$HOME/.cargo/bin`, `$HOME/.go/bin`, `$HOME/go/bin`, and `$HOME/.dotnet/tools`.
+- Remember that `sudo`, root, and the logged-in user may have different `HOME`, `PATH`, tools, and configuration.
 ## 9. Change Review and Completion
 
 Before finishing, review the complete diff and confirm:
