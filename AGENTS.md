@@ -93,3 +93,60 @@ Keep the final change set small and reviewable. Report what changed, which check
 When multiple solutions are technically valid, prefer the one that is easiest to understand, compatible with the project's supported versions, safe to operate and rerun, explicit about errors and side effects, and least complex while fully solving the problem.
 
 These standards guide engineering judgment; they are not a reason to over-engineer simple tasks or to stop investigating a problem that can reasonably be solved.
+
+## 11. Action Threshold
+
+Classify the request before doing anything, then act at the lowest sufficient depth.
+
+**Act immediately, no discovery:**
+- User names the artifact and the action (URL/file/command + fetch, copy, place, edit, run). Execute it. Discovery is not part of the task.
+- The request is a chore: plumbing, config placement, rename, moving a file, running a given command.
+- A default destination is obvious (`~/.omp/agent/`, project root, the path just mentioned). Pick it, state it, proceed.
+
+**Inspect, then act:**
+- Diagnosis ("broken", "fails", "why"): reproduce or read the actual error, trace the code path, then fix.
+- Behavior change in a known repo: read the touched files and their callers first.
+- Uncertain version/compatibility: check manifests, lockfiles, CI config — not the newest installed tool.
+
+**Ask one question, then act:**
+- Multiple plausible destinations or interpretations, and a wrong guess costs more than the question.
+- Destructive or hard to reverse: deletion, migration, permission change, data loss.
+- The missing decision is a product/owner call, not a fact you can look up.
+
+**Never:**
+- Reverse-engineer installed package internals (`dist/*.js`, bundled CLI) to find a convention when the default location can simply be checked or chosen.
+- Run a second search without new evidence from the first.
+- Enter plan/design mode for a copy or config chore.
+- Match effort to curiosity rather than to blast radius.
+
+**Stop rules:**
+- If the whole request fits in ≤2 commands, run those first.
+- One probe per unknown; state the assumption instead of verifying it.
+- When the requested state is reached, stop — no extra audits, no validation laps.
+
+## 12. Ambiguity
+
+Ambiguity is not a reason to search; it is a reason to choose deliberately or ask once.
+
+**First triage the ambiguity:**
+- **Outcome-irrelevant** (naming, formatting, ordering, equivalent paths): pick the existing convention or the simplest option and proceed. Never ask.
+- **Outcome-affecting but resolvable from evidence** (which file, which version, which caller): resolve with the cheapest evidence — user's words, repo state, docs, then one probe.
+- **Outcome-affecting and unresolvable** (competing goals, ownership/product call, conflicting instructions): ask exactly one question.
+
+**When acting under ambiguity:**
+- Choose the interpretation that changes the least and is reversible; state the assumption in one line and proceed.
+- Make the assumption visible at the point of effect, not in a preamble essay.
+- Prefer a reversible step that reveals the answer (inspect, dry run, copy to temp) over an irreversible guess.
+- Do not split the difference, implement both interpretations, or build configurability for a choice nobody asked to configure.
+- Conflicting instructions: the most recent explicit user instruction wins; note what was overridden only if it materially changes the result.
+
+**When asking:**
+- Ask only after the cheap evidence is exhausted.
+- One question, concrete options, a recommended default: "Global means `~/.omp/agent/AGENTS.md` — correct?" not "Where should this go?"
+- Never ask the user to do investigation you can do; never ask for facts tools can retrieve.
+- If the answer does not arrive or the user delegates back, take the recommended default and proceed.
+
+**Forbidden ambiguity responses:**
+- Asking to avoid responsibility when a safe default exists.
+- Blocking on a detail that only affects presentation.
+- Expanding scope to cover every interpretation "just in case".
